@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Product } from "@prisma/client";
 import Image from "next/image";
 
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = process.env.NEXT_APP_URL;
 
 export default function ProductList() {
   const router = useRouter();
