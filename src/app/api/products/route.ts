@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
-
 const prisma = new PrismaClient();
 export async function POST(req: Request) {
   try {
@@ -31,20 +30,15 @@ export async function GET(req: Request) {
     const limit = Number(searchParams.get("limit")) || 10;
     const category = searchParams.get("category");
     const brand = searchParams.get("brand");
-    const minPrice = searchParams.get("minPrice");
-    const maxPrice = searchParams.get("maxPrice");
     const sort = searchParams.get("sort");
-
     const skip = (page - 1) * limit;
     const take = limit;
 
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
     if (category) where.category = category;
     if (brand) where.brand = brand;
-    if (minPrice) where.minPrice = { gte: Number(minPrice) };
-    if (maxPrice) where.minPrice = { lte: Number(maxPrice) };
 
-    const orderBy: any = {};
+    const orderBy: Prisma.ProductOrderByWithRelationInput = {};
     if (sort === "price_asc") orderBy.price = "asc";
     if (sort === "price_desc") orderBy.price = "desc";
     if (sort === "latest") orderBy.createdAt = "desc";
