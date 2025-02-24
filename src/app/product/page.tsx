@@ -1,28 +1,37 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const API_BASE_URL = "http://localhost:8000/api/product";
+const API_BASE_URL = "http://localhost:3000/api";
 
 export default function ProductList() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const searchParams = useSearchParams(); // Read-only instance
-  const [dummy, setDummy] = useState(""); // We'll update URL using router push in Next.js if needed
+  const [page, setPage] = useState(Number(searchParams.get("page") || 1));
 
+  const [totalPages, setTotalPages] = useState(1);
   const debouncedSearch = useDebounce(searchQuery);
 
-  // Get the current page from searchParams (if exists)
-  // const currentPage = Number(searchParams.get("page")) || 1;
+  const updateSearchParamPage = (newPage: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("page", newPage.toString());
+    router.push(`?page=${newPage}`);
+  };
+
+  useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page.toString());
+
+    return params.toString();
+  }, [searchParams]);
 
   useEffect(() => {
     fetchProducts(debouncedSearch, page);
@@ -52,15 +61,6 @@ export default function ProductList() {
       setError("Failed to fetch products");
     }
     setLoading(false);
-  };
-
-  // Function to update the URL query param for page.
-  // Next.js's useSearchParams is read-only so you might need to use router.push or router.replace instead.
-  const updateSearchParamPage = (newPage: number) => {
-    // If you're using Next.js 13 app router, you can update the URL using the router.
-    // Here, as an example, we'll assume you have a function or use router.push:
-    router.push(`?page=${newPage}`);
-    // For demonstration purposes, we'll just update a dummy state.
   };
 
   return (
